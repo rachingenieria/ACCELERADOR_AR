@@ -13,7 +13,17 @@ const int Sensor2Pin =  12;      // the number of the LED pin
 int Sensor1State;
 int Sensor2State;
 
+unsigned long tiempo1 = 0;
+unsigned long tiempo2 = 0;
+unsigned long tiempo_diferencia = 0;
+unsigned long tiempo_activacion;
+
+
 static int motord, motori;
+
+int perimetro =  500; //milimetros, 50 centrimetros
+int Bohina_efectiva =  20; //milimetros, 2.5 centrimetros
+int relacion_distancia;
 
 void setup() {
   Serial.begin(9600);
@@ -44,6 +54,8 @@ void setup() {
      
      analogWrite(INDUCTORD_PWM,0);
      analogWrite(INDUCTORI_PWM,0);
+
+     relacion_distancia = perimetro/Bohina_efectiva;
 }
 
 void loop() {
@@ -58,35 +70,62 @@ void loop() {
 
   if(!Sensor1State)
   {
-     delay(3);
+     tiempo1 = millis();
+     tiempo_diferencia = tiempo1 - tiempo2;
+     tiempo_activacion = tiempo_diferencia / relacion_distancia;
+
+
+     if(tiempo_activacion > 30)
+      tiempo_activacion = 30;
+     
+     //if(tiempo_activacion > 20)
+      delay(10);
+      
      digitalWrite(INDUCTORD_AINA,LOW);
      digitalWrite(INDUCTORD_AINB,HIGH);
      analogWrite(INDUCTORD_PWM,255);
-     delay(10);
+     delay(tiempo_activacion);
      //digitalWrite(INDUCTORD_AINA,HIGH);
      //digitalWrite(INDUCTORD_AINB,HIGH);
      //analogWrite(INDUCTORD_PWM,0);
      //delay(10);
      digitalWrite(INDUCTORD_AINA,LOW);
      digitalWrite(INDUCTORD_AINB,LOW);
-     Serial.println("DERECHA");
+     Serial.print("A :");
+     Serial.print(tiempo_activacion);
+     Serial.print(", :");
+     Serial.println(tiempo_diferencia);
+     delay(200);
      
   }
 
  if(!Sensor2State)
   {
-     delay(3);
+     tiempo2 = millis();
+     tiempo_diferencia = tiempo2 - tiempo1;
+     tiempo_activacion = tiempo_diferencia / relacion_distancia;
+     
+     if(tiempo_activacion > 30)
+        tiempo_activacion = 30;
+
+     //if(tiempo_activacion > 20)
+        delay(10);
+     
      digitalWrite(INDUCTORI_AINA,HIGH);
      digitalWrite(INDUCTORI_AINB,LOW);
-     analogWrite(INDUCTORI_PWM,255);
-     delay(20);
+     analogWrite(INDUCTORI_PWM,250);
+     delay(tiempo_activacion);
      //digitalWrite(INDUCTORI_AINA,HIGH);
      //digitalWrite(INDUCTORI_AINB,HIGH);
      //analogWrite(INDUCTORI_PWM,0);
      //delay(10);
      digitalWrite(INDUCTORI_AINA,LOW);
      digitalWrite(INDUCTORI_AINB,LOW);
-     Serial.println("IZQUIERDA");
+     Serial.print("B :");
+     Serial.print(tiempo_activacion);
+     Serial.print(", :");
+     Serial.println(tiempo_diferencia);
+     delay(200);
    
      
   }
